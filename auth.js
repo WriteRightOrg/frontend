@@ -1,4 +1,5 @@
-console.log("Loaded auth.js");
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+import { getAuth } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js"
 
 const firebaseConfig = {
   apiKey: "AIzaSyAl2Mpvpshv2Nlo3tQ84MDbuV3gy_XtKvo",
@@ -7,12 +8,14 @@ const firebaseConfig = {
   storageBucket: "writeright-de7ff.appspot.com",
   messagingSenderId: "156869202749",
   appId: "1:156869202749:web:6637c77cf272223cb42b54",
-  measurementId: "G-GDF38BC12R",
+  measurementId: "G-GDF38BC12R"
 };
 
-firebase.initializeApp(firebaseConfig);
+export const app = initializeApp(firebaseConfig);
+export const auth = getAuth()
 
-const auth = firebase.auth()
+console.log("Loaded auth.js");
+console.log(app)
 
 const signInButton = document.getElementById("sign-in")
 const email = document.getElementById("email")
@@ -24,9 +27,9 @@ signInButton.addEventListener("click", async function() {
   console.log("Success")
 });
 
-firebase.auth().onAuthStateChanged(function(user) {
+auth.onAuthStateChanged(function(user) {
   if (user) {
-    console.log("redireicting")
-    window.location = 'index.html';
+    console.log("Redirecting with user", auth.currentUser.uid)
+    window.location = "index.html"
   }
 })

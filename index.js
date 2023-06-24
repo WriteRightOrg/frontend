@@ -2,21 +2,11 @@ const mainbox = document.getElementById("mainbox");
 var remy = 1;
 const submitButton = document.getElementById("submit");
 let correct = "";
+// import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+// import { getAuth } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js"
+// const auth = getAuth()
 
-// const firebaseConfig = {
-//   apiKey: "AIzaSyAl2Mpvpshv2Nlo3tQ84MDbuV3gy_XtKvo",
-//   authDomain: "writeright-de7ff.firebaseapp.com",
-//   projectId: "writeright-de7ff",
-//   storageBucket: "writeright-de7ff.appspot.com",
-//   messagingSenderId: "156869202749",
-//   appId: "1:156869202749:web:6637c77cf272223cb42b54",
-//   measurementId: "G-GDF38BC12R"
-// };
-
-// // Initialize Firebase
-// firebase.initializeApp(firebaseConfig);
-
-// const auth = getAuth();
+// console.log(auth.currentUser.uid)
 // const user = auth.currentUser;
 // // Access Firestore
 // const db = firebase.firestore();
