@@ -1,0 +1,43 @@
+html{
+    background-color: #212529;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+.be{
+    text-align: left;
+    width: 100%;
+    min-height: 2000px;
+    padding: 20px;
+    border-radius: 20px;
+    background-color: #D8F3DC;
+    color: black;
+}
+.ud{
+    text-decoration-color: red;
+    text-decoration-thickness: 2.5px;
+}
+.custombox {
+    width:70% ;
+    height: 300px;
+    /* margin: 5px; */
+    
+    border-radius: 20px;
+    background-color: #B7E4C7;
+}
+.boxtitle{
+    background-color: #D8F3DC;
+    border-radius: 20px;
+    color: #2D6A4F;
+    margin-top: 20px; 
+    margin: 10px;
+}
+.boxcontent{
+    background-color: #D8F3DC;
+    border-radius: 20px;
+    color: #2D6A4F;
+    margin: 10px;
+}
+.injectable{
+    display: flex;
+    justify-content: center;
+
+}
