@@ -1,4 +1,4 @@
-html{
+html {
     background-color: #212529;
     font-family: Verdana, Geneva, Tahoma, sans-serif;
 }
@@ -48,4 +48,11 @@ html{
 
 .login-form {
     margin: 300px;
+}
+
+#lesson {
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    margin: 50px;
 }
