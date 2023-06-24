@@ -196,7 +196,6 @@ function handleMainboxClick() {
 }
 
 window.handleMainboxClick = handleMainboxClick;
-
 function clearUnderline() {
   mainbox.innerHTML = mainbox.textContent;
 }
