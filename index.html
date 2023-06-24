@@ -5,6 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>WriteRight</title>
     <link rel="stylesheet" href="stylesheet.css" />
+    <script
+      src="https://kit.fontawesome.com/8ae7b9a54f.js"
+      crossorigin="anonymous"
+    ></script>
   </head>
   <body>
     <nav class="navbar navbar-expand-lg bg-body-tertiary">
@@ -24,7 +28,7 @@
         <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
           <div class="navbar-nav">
             <a class="nav-link active" aria-current="page" href="#">Home</a>
-            <a class="nav-link" href="#">About Us</a>
+            <a class="nav-link" href="./about.html">About Us</a>
           </div>
         </div>
       </div>
@@ -34,6 +38,7 @@
         <div class="col">
           <div style="margin: 10px">
             <div
+              onclick="if(remy==0){remy=1;clearUnderline()}"
               id="mainbox"
               spellcheck="false"
               class="be"
@@ -45,19 +50,18 @@
           </div>
         </div>
         <div type="button" class="col-1 p-7" style="margin-top: 20px">
-          <button type="button" id="submit" class="btn btn-primary">
+          <button
+            type="button"
+            id="submit"
+            class="btn btn-primary"
+            onclick="remy=0;"
+          >
             Submit
           </button>
         </div>
 
         <div class="col">
-          <div class="injectable" id="injectable">
-            <div class="custombox">
-              <div class="boxtitle">
-                <h3>Grammatical Error</h3>
-              </div>
-            </div>
-          </div>
+          <div class="injectable" id="injectable"></div>
         </div>
       </div>
     </div>
@@ -79,5 +83,6 @@
       integrity="sha384-fbbOQedDUMZZ5KreZpsbe1LCZPVmfTnH7ois6mU1QK+m14rQ1l2bGBq41eYeM/fS"
       crossorigin="anonymous"
     ></script>
+    <script type="module" src="firebase.js"></script>
   </body>
 </html>

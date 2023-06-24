@@ -1,4 +1,5 @@
 const mainbox = document.getElementById("mainbox");
+var remy = 0;
 const submitButton = document.getElementById("submit");
 let correct = "";
 
@@ -79,12 +80,16 @@ function removeUnderLine(goal, occurance) {
 }
 
 async function correctSentence(sentence) {
+  const OPENAI_API_KEY = await fetch("gen.txt");
+
+  console.log("KEY", OPENAI_API_KEY);
+
   const data = {
     model: "gpt-3.5-turbo",
     messages: [
       {
         role: "system",
-        content: `Given an excerpt, identify any punctuation, capitalization, and grammatical mistakes, as well as an explanation for why they are wrong and return a corrected paragraph in the JSON format.
+        content: `Given an excerpt, identify any punctuation, capitalization, and grammatical errors, return each incorrect word rewritten correctly as well as an explaination for why they are wrong and return the full corrected excerpt in the JSON format.
         
         Example Input : "i cant spell good."
 
@@ -108,8 +113,7 @@ async function correctSentence(sentence) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization:
-        "Bearer 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",
+      Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
     },
     body: JSON.stringify(data),
   });
@@ -141,10 +145,24 @@ submitButton.addEventListener("click", async function () {
   }
 });
 
-mainbox.addEventListener("keypress", clearUnderline);
-
 function clearUnderline() {
-  const temp = mainbox.textContent;
-  mainbox.innerHTML = "";
-  mainbox.innerHTML = temp;
+  mainbox.innerHTML = mainbox.textContent;
+}
+
+function addBox(initial, replace, shortexp, lessonLink) {
+  content = `<div class="custombox">
+              <div class="boxtitle">
+                <h3>Grammatical Error</h3>
+              </div>
+              <div class="boxcontent">
+                <p>${initial}  <i style="margin:10px;" class='fas fa-arrow-right' style='font-size:36px'></i>   
+${replace}</p>
+              </div>
+              <div class="boxcontent">
+                <p>${shortexp} <a href="${lessonLink}"><i>Lesson Link</i></a></p>
+              </div>
+            </div>
+            `;
+  document.getElementById("injectable").innerHTML =
+    document.getElementById("injectable").innerHTML + content;
 }

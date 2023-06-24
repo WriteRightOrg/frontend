@@ -22,6 +22,7 @@ html{
     
     border-radius: 20px;
     background-color: #B7E4C7;
+    margin: 10px;
 }
 .boxtitle{
     background-color: #D8F3DC;
@@ -39,5 +40,6 @@ html{
 .injectable{
     display: flex;
     justify-content: center;
+    flex-direction: column;
 
 }
