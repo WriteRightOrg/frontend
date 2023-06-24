@@ -1,3 +1,24 @@
+console.log("Loaded!", process.env)
+
+import firebase from 'firebase/compat/app';
+import 'firebase/compat/auth';
+import 'firebase/compat/firestore';
+
+console.log(firebase)
+const firebaseConfig = {
+  apiKey: "AIzaSyAl2Mpvpshv2Nlo3tQ84MDbuV3gy_XtKvo",
+  authDomain: "writeright-de7ff.firebaseapp.com",
+  projectId: "writeright-de7ff",
+  storageBucket: "writeright-de7ff.appspot.com",
+  messagingSenderId: "156869202749",
+  appId: "1:156869202749:web:6637c77cf272223cb42b54",
+  measurementId: "G-GDF38BC12R",
+};
+
+const app = firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+
 const mainbox = document.getElementById("mainbox");
 var remy = 0;
 const submitButton = document.getElementById("submit");
@@ -80,10 +101,6 @@ function removeUnderLine(goal, occurance) {
 }
 
 async function correctSentence(sentence) {
-  const OPENAI_API_KEY = await fetch("gen.txt");
-
-  console.log("KEY", OPENAI_API_KEY);
-
   const data = {
     model: "gpt-3.5-turbo",
     messages: [
@@ -110,19 +127,19 @@ async function correctSentence(sentence) {
   };
 
   const completion = await fetch("https://api.openai.com/v1/chat/completions", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
-    },
-    body: JSON.stringify(data),
-  });
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
+      },
+      body: JSON.stringify(data),
+    });
 
-  const response = await completion.json();
+    const response = await completion.json();
 
-  //console.log("Received response", response.choices[0].message.content);
-  return response;
-}
+    //console.log("Received response", response.choices[0].message.content);
+    return response;
+  }
 
 submitButton.addEventListener("click", async function () {
   console.log("Submitting...");
@@ -165,4 +182,8 @@ ${replace}</p>
             `;
   document.getElementById("injectable").innerHTML =
     document.getElementById("injectable").innerHTML + content;
+}
+
+function test() {
+  db.collection("users").doc("test").set({"hi": "hi"})
 }
