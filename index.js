@@ -1,35 +1,17 @@
+const user = JSON.parse(localStorage.getItem("user"));
+
 const mainbox = document.getElementById("mainbox");
 var remy = 1;
 const submitButton = document.getElementById("submit");
 let correct = "";
-// import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
-// import { getAuth } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js"
-// const auth = getAuth()
+var fixesglob = null;
 
-// console.log(auth.currentUser.uid)
-// const user = auth.currentUser;
-// // Access Firestore
-// const db = firebase.firestore();
-
-// // Now you can use the Firestore instance to perform database operations
-// // For example, you can query a collection
-// db.collection("users")
-//   .get()
-//   .then(function(querySnapshot) {
-//     querySnapshot.forEach(function(doc) {
-//       console.log(doc.id, "=>", doc.data());
-//     });
-//   })
-//   .catch(function(error) {
-//     console.log("Error getting documents: ", error);
-//   });
-  
 function getText() {
   return document.getElementById("mainbox").innerHTML;
 }
 
 function getIndicesOf(searchStr, str, caseSensitive) {
-  console.log(str, "searching for", searchStr, "within")
+  console.log(str, "searching for", searchStr, "within");
   var searchStrLen = searchStr.length;
   if (searchStrLen == 0) {
     return [];
@@ -56,18 +38,21 @@ function underLine(word, occurance) {
   if (indicies.length == 0) {
     return false;
   }
-  console.log(indicies);
+  console.log(indicies, word, occurance);
+  while (occurance > indicies.length - 1) {
+    occurance = occurance - 1;
+  }
   var index = indicies[occurance];
-  console.warn(text.substring(0, index), "0, index")
-  console.warn(word, "word")
-  console.warn(text.substring(index+word.length))
+  console.warn(text.substring(0, index), "0, index");
+  console.warn(word, "word");
+  console.warn(text.substring(index + word.length));
   var newText =
     text.substring(0, index) +
     '<u class="ud" id="ud">' +
     word +
     "</u>" +
     text.substring(index + word.length);
-
+  console.log(getText());
   document.getElementById("mainbox").innerHTML = newText;
   return true;
 }
@@ -110,9 +95,10 @@ async function correctSentence(sentence) {
     messages: [
       {
         role: "system",
-        content: `Given an excerpt, identify any punctuation, periods, capitalization, and grammatical errors, return each incorrect word rewritten correctly as well as an explaination for why they are wrong and the occurance of the word(the number of times the word has been written before the position of the errored word), and return the full corrected excerpt in the JSON format.
+        content: `Given an excerpt, identify any punctuation, periods, capitalization, and grammatical errors, and spelling mistakes. return each incorrect word rewritten correctly as well as an explaination for why they are wrong and the occurance of the word(the number of times the word has been written before the position of the errored word), and return the full corrected excerpt in the JSON format.
         
-        Example Input : "Peter went to the vary good park? i cant spell vary good,"
+
+        Example Input : "Peter went to the vary good park? i cant spell vary good, I am gona go home vary fast now."
 
         Example Response:
         
@@ -124,14 +110,23 @@ async function correctSentence(sentence) {
                   ["cant", "can't", "You need an apostrophe because [detailed explanation]", 0],
                   ["vary", "very", "Very is spelled incorrectly [detailed explanation]", 1],
                   [",", ".", "You need to use a period instead of a comma [detailed explanation]", 0]
+                  ["gona", "going to", "gonna is an informal slang for going to [detailed explanation]", 0],
+                  ["vary", "very", "Very is spelled incorrectly [detailed explanation]", 2],
               ],
               "corrected: "I can't spell good.",
           }
         
 
+        Here is a more detailed example the of the lists within the fixes list:
+        [word with issue, word without issue, detailed explantion, occurance of word in excerpt]
+        occurance of word in excerpt is the number of times the word has been written before the position of the errored word so if the word that is being corrected is the first time the word has been written in the excerpt then the occurance of the word in the excerpt is 0, if it is the second time the word has been written in the excerpt then the occurance of the word in the excerpt is 1, if it is the third time the word has been written in the excerpt then the occurance of the word in the excerpt is 2 and so on.
+        The occurance of the word helps convey its position in the text, make sure the calculations for occurance are consistant. Make sure to get it right.
+          
         YOUR RESPONSE HAS TO FOLLOW EVERY SINGLE RULE
         [OUTPUT ONLY JSON]
-        [DO NOT include any of the correct words in your response.[]
+        [ENSURE all spelling issues are identified, every signle one. You are not allowed to miss any.]
+        [Ensure words are in the correct form, as stated in the english dictionary]
+        [ENSURE the JSON is formatted in the same format as the example.]
         [DO NOT return any opinion on how to improve the writing's engagement.]
         [ENSURE punctuation is proper.]
         [POPULATE [detailed explantion] with an actual detailed explanation]
@@ -144,19 +139,19 @@ async function correctSentence(sentence) {
   };
 
   const completion = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer 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`,
-      },
-      body: JSON.stringify(data),
-    });
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer `,
+    },
+    body: JSON.stringify(data),
+  });
 
-    const response = await completion.json();
+  const response = await completion.json();
 
-    console.log("Received response", response.choices[0].message.content);
-    return response;
-  }
+  console.log("Received response", response.choices[0].message.content);
+  return response;
+}
 
 submitButton.addEventListener("click", async function () {
   console.log("Submitting...");
@@ -166,45 +161,48 @@ submitButton.addEventListener("click", async function () {
   if (sentence == correct) {
     console.log("shit was right!!!!");
   } else {
-    //await addMistake(sentence)
+    await addMistake(sentence);
     let response = await correctSentence(sentence);
 
     response = JSON.parse(response.choices[0].message.content);
     correct = response["corrected"];
     console.log("Response", response);
-    console.log(correct)
+    console.log(correct);
     let num = 0;
+    fixesglob = response["fixes"];
     for (let lsit in response["fixes"]) {
-      num = num+1;
-      let word = lsit[0]
-      word = response["fixes"][num]
+      console.warn("New iteration", num);
+      console.log(getText());
+
+      let word = lsit[0];
+      word = response["fixes"][num];
       // console.log(word[0], "na")
-      
-      // console.log(word);
-      console.log(word[0], word[1], word[2], word[3])
-      console.log(getText())
-      underLine(word[0],word[3]);
-      addBox(word[0], word[1], word[2], "Undeffed")
-      
+
+      console.log(word, "print of word before logging all contents");
+      console.log(word[0], word[1], word[2], word[3]);
+      console.log(getText());
+      underLine(word[0], word[3]);
+      addBox(word[0], word[1], word[2], "Undeffed", num);
+      num = num + 1;
     }
   }
 });
 
 function handleMainboxClick() {
-  if (remy==0) {
+  if (remy == 0) {
     remy = 1;
     clearUnderline();
   }
 }
 
-window.handleMainboxClick = handleMainboxClick
+window.handleMainboxClick = handleMainboxClick;
 
 function clearUnderline() {
   mainbox.innerHTML = mainbox.textContent;
 }
 
 function addBox(initial, replace, shortexp, lessonLink, numberd) {
-  var content = `<div class="custombox">
+  var content = `<div class="custombox" id="${numberd}">
               <div class="boxtitle">
                 <h3>Grammatical Error</h3>
               </div>
@@ -218,21 +216,67 @@ ${replace}</p>
               <button type="button" class="btn btn-outline-success">Fix</button>
             </div>
             `;
-  document.getElementById("injectable").innerHTML =
-    document.getElementById("injectable").innerHTML + content;
+  var nocontent = `<div class="custombox" id="${numberd}">
+              <div class="boxtitle">
+                <h3>Grammatical Error</h3>
+              </div>
+              <div class="boxcontent">
+                <p>
+                  ${initial}
+                </p>
+              </div>
+              <div class="boxcontent">
+                <p>
+                  ${shortexp} <a href="${lessonLink}"><i>Lesson Link</i></a>
+                </p>
+              </div>
+              <div
+                style="
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  margin-bottom: 2px;
+                "
+              >
+                <input
+                  placeholder="Enter Correction"
+                  id="${numberd}-input"
+                  type="text"
+                  class="form-control"
+                  style="width: 50%"
+                />
+              </div>
+
+              <button
+                id="${numberd}-button"
+                onclick="fix(this, false)"
+                type="button"
+                class="btn btn-outline-success"
+              >
+                submit
+              </button>
+            </div>`;
+
+  if (numberd > 2) {
+    document.getElementById("injectable").innerHTML =
+      document.getElementById("injectable").innerHTML + nocontent;
+  } else {
+    document.getElementById("injectable").innerHTML =
+      document.getElementById("injectable").innerHTML + content;
+  }
 }
 
 async function addMistake(mistake) {
-  const ref =  db.collection("users").doc(firebase.auth().currentUser.uid);
-  const snap = await ref.get() 
+  const ref = db.collection("users").doc(firebase.auth().currentUser.uid);
+  const snap = await ref.get();
   const previous_mistakes = snap.data().previous_mistakes;
-  previous_mistakes.push(mistake)
+  previous_mistakes.push(mistake);
   return await ref.set({
-    "previous_mistakes": previous_mistakes
+    previous_mistakes: previous_mistakes,
   });
-
 }
 
+function fix(auto, ans) {}
 
 // var ce = document.getElementById("mainbox")
 // ce.addEventListener('paste', function (e) {
@@ -240,20 +284,3 @@ async function addMistake(mistake) {
 //   var text = e.clipboardData.getData('text/plain')
 //   document.execCommand('insertText', false, text)
 // })
-
-function test() {
-  const firebaseConfig = {
-    apiKey: "AIzaSyAl2Mpvpshv2Nlo3tQ84MDbuV3gy_XtKvo",
-    authDomain: "writeright-de7ff.firebaseapp.com",
-    projectId: "writeright-de7ff",
-    storageBucket: "writeright-de7ff.appspot.com",
-    messagingSenderId: "156869202749",
-    appId: "1:156869202749:web:6637c77cf272223cb42b54",
-    measurementId: "G-GDF38BC12R",
-  };
-  
-  firebase.initializeApp(firebaseConfig);
-  
-  const auth = firebase.auth()
-  console.log(auth.currentUser)
-}
