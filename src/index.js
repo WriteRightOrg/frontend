@@ -56,7 +56,7 @@ function getIndicesOf(searchStr, str, caseSensitive) {
   return indices;
 }
 
-function underLine(word, occurance) {
+function underLine(word) {
   // find text in mainbox and replace with underlined text
   var text = getText();
   //   get indicies of word, and use the occurance as the index of the array indicies, and replace the word on that index
@@ -64,54 +64,52 @@ function underLine(word, occurance) {
   if (indicies.length == 0) {
     return false;
   }
-  console.log(indicies, word, occurance);
-  while (occurance > indicies.length - 1) {
-    occurance = occurance - 1;
+  for (var i = 0; i < indicies.length; i++) {
+    console.log(indicies, word);
+    var index = indicies[i];
+    console.warn(text.substring(0, index), "0, index");
+    console.warn(word, "word");
+    console.warn(text.substring(index + word.length));
+    var newText =
+      text.substring(0, index) +
+      '<u class="ud" id="ud">' +
+      word +
+      "</u>" +
+      text.substring(index + word.length);
+    console.log(getText());
+    document.getElementById("mainbox").innerHTML = newText;
+    return true;
   }
-  var index = indicies[occurance];
-  console.warn(text.substring(0, index), "0, index");
-  console.warn(word, "word");
-  console.warn(text.substring(index + word.length));
-  var newText =
-    text.substring(0, index) +
-    '<u class="ud" id="ud">' +
-    word +
-    "</u>" +
-    text.substring(index + word.length);
-  console.log(getText());
-  document.getElementById("mainbox").innerHTML = newText;
-  return true;
 }
 
 function removeUnderLine(goal, occurance) {
   // remove U tags around word with occurance index, remove <u class="ud" id="ud">, and </u> after
   var text = getText();
   var indicies = getIndicesOf(goal, text, false);
-  if (getIndicesOf(goal + "</u>", text, false).length == 0) {
-    return false;
-  }
-  // check if there is a u tag around the occurance of the word
-  console.log(
-    text.substring(
-      indicies[occurance] + goal.length,
-      indicies[occurance] + goal.length + 4
-    )
-  );
-  if (
-    text.substring(
-      indicies[occurance] + goal.length,
-      indicies[occurance] + goal.length + 4
-    ) == "<u>"
-  ) {
-    return false;
-  }
-  var index = indicies[occurance];
-  var newText =
-    text.substring(0, index - 22) +
-    goal +
-    text.substring(index + goal.length + 4);
+  for (var i = 0; i < indicies.length; i++) {
+    if (getIndicesOf(goal + "</u>", text, false).length == 0) {
+      return false;
+    }
+    // check if there is a u tag around the occurance of the word
+    console.log(
+      text.substring(indicies[i] + goal.length, indicies[i] + goal.length + 4)
+    );
+    if (
+      text.substring(
+        indicies[i] + goal.length,
+        indicies[i] + goal.length + 4
+      ) == "<u>"
+    ) {
+      return false;
+    }
+    var index = indicies[i];
+    var newText =
+      text.substring(0, index - 22) +
+      goal +
+      text.substring(index + goal.length + 4);
 
-  document.getElementById("mainbox").innerHTML = newText;
+    document.getElementById("mainbox").innerHTML = newText;
+  }
   return true;
 }
 
@@ -121,7 +119,7 @@ async function correctSentence(sentence) {
     messages: [
       {
         role: "system",
-        content: `Given an paragraph, identify any punctuation, periods, capitalization, grammatical , and spelling errors. return each incorrect word rewritten correctly as well as an explaination for why they are wrong and the occurance of the word(the number of times the word has been written before the position of the errored word), and return the full corrected excerpt in the JSON format.
+        content: `Given an paragraph, identify any punctuation, periods, capitalization, grammatical , and spelling errors. return each incorrect word rewritten correctly as well as an explaination for why they are wrong and return the full corrected excerpt in the JSON format.
         
 
         Example Input : "Peter went to the vary good park? i cant spell vary good, I am gona go home vary fast now."
@@ -130,26 +128,25 @@ async function correctSentence(sentence) {
         
           {
               "fixes": [
-                  ["vary", "very", "Very is spelled incorrectly [detailed explanation]", 0],
-                  ["?", ".", "You need to use a period because it is a statement not a question mark because [detailed explanation]", 0],
-                  ["i", "I", "I should be capitalized because the signle-letter pronoun 'I' is always capitalized", 0],
-                  ["cant", "can't", "You need an apostrophe because contractions require an apostrophe between the first and second segment", 0],
-                  ["vary", "very", "Very is spelled incorrectly", 1],
-                  [",", ".", "You need to use a period instead of a comma", 0]
-                  ["gona", "going to", "gonna is an informal slang for going to", 0],
-                  ["vary", "very", "Very is spelled incorrectly", 2],
+                  ["vary", "very", "Very is spelled incorrectly [detailed explanation]"],
+                  ["?", ".", "You need to use a period because it is a statement not a question mark because [detailed explanation]"],
+                  ["i", "I", "I should be capitalized because the signle-letter pronoun 'I' is always capitalized"],
+                  ["cant", "can't", "You need an apostrophe because contractions require an apostrophe between the first and second segment"],
+                  ["vary", "very", "Very is spelled incorrectly"],
+                  [",", ".", "You need to use a period instead of a comma"]
+                  ["gona", "going to", "gonna is an informal slang for going to"],
+                  ["vary", "very", "Very is spelled incorrectly"]
               ],
               "corrected: "I can't spell good.",
           }
         
 
         Here is a more detailed example the of the lists within the fixes list:
-        [word with issue, word without issue, detailed explantion, occurance of word in excerpt]
-        occurance of word in excerpt is the number of times the word has been written before the position of the errored word so if the word that is being corrected is the first time the word has been written in the excerpt then the occurance of the word in the excerpt is 0, if it is the second time the word has been written in the excerpt then the occurance of the word in the excerpt is 1, if it is the third time the word has been written in the excerpt then the occurance of the word in the excerpt is 2 and so on.
-        The occurance of the word helps convey its position in the text, make sure the calculations for occurance are consistant. Make sure to get it right.
+        [word with issue, word without issue, detailed explantion]
           
         YOUR RESPONSE HAS TO FOLLOW EVERY SINGLE RULE
         [OUTPUT ONLY JSON]
+        [ENSURE the original word(first word in list) is the same as the word in the original text, no case changes.]
         [ENSURE all issues are identified, every one. You are not allowed to miss any.]
         [ENSURE issues are not made up and have a factual issue]
         [Ensure words are in the correct form, as stated in the english dictionary]
@@ -157,7 +154,7 @@ async function correctSentence(sentence) {
         [DO NOT return any opinion on how to improve the writing's engagement.]
         [ENSURE punctuation is proper.]
         [POPULATE [detailed explantion] with an actual detailed explanation do not leave any text that says [detailed explanation] and do not include any [ or ] symbols in the response.]
-        [ENSURE corrections in the JSON are returned in the order they appear in the]
+        [ENSURE corrections in the JSON are returned in the order they appear in]
         [NO PROSE]`,
       },
 
@@ -169,7 +166,7 @@ async function correctSentence(sentence) {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer `,
+      Authorization: `Bearer ${OPENAI_API_KEY}`,
     },
     body: JSON.stringify(data),
   });
@@ -198,6 +195,7 @@ submitButton.addEventListener("click", async function () {
     let num = 0;
     fixesglob = response["fixes"];
     console.log(fixesglob, "fixessssssssssssssssss");
+    let tokens = await getTokens();
     for (let lsit in response["fixes"]) {
       console.warn("New iteration", num);
       console.log(getText());
@@ -207,10 +205,11 @@ submitButton.addEventListener("click", async function () {
       // console.log(word[0], "na")
 
       console.log(word, "print of word before logging all contents");
-      console.log(word[0], word[1], word[2], word[3]);
+      console.log(word[0], word[1], word[2]);
       console.log(getText());
       underLine(word[0], word[3]);
-      addBox(word[0], word[1], word[2], "Undeffed", num);
+      await addBox(word[0], word[1], word[2], num, tokens);
+      tokens -= 1;
       num = num + 1;
     }
   }
@@ -228,7 +227,7 @@ function clearUnderline() {
   mainbox.innerHTML = mainbox.textContent;
 }
 
-function addBox(initial, replace, shortexp, lessonLink, numberd) {
+async function addBox(initial, replace, shortexp, numberd, tokens) {
   var content = `<div class="custombox" id="${numberd}">
               <div class="boxtitle">
                 <h3>Grammatical Error</h3>
@@ -238,7 +237,7 @@ function addBox(initial, replace, shortexp, lessonLink, numberd) {
 ${replace}</p>
               </div>
               <div class="boxcontent">
-                <p>${shortexp} <a href="${lessonLink}"><i>Lesson Link</i></a></p>
+                <p>${shortexp}</p>
               </div>
               <button type="button" id="${numberd}-button" onclick="fix(this.id, true)" class="btn btn-outline-success">Fix</button>
             </div>
@@ -254,7 +253,7 @@ ${replace}</p>
               </div>
               <div class="boxcontent">
                 <p>
-                  ${shortexp} <a href="${lessonLink}"><i>Lesson Link</i></a>
+                  ${shortexp} Complete <a href="./lesson.html"><i>lessons</i></a> to unlock more fixes.
                 </p>
               </div>
               <div
@@ -283,13 +282,11 @@ ${replace}</p>
                 submit
               </button>
             </div>`;
-
-  if (numberd > 2) {
-    document.getElementById("injectable").innerHTML =
-      document.getElementById("injectable").innerHTML + nocontent;
+  if (tokens > 0) {
+    console.log("BURGA CHEEZ", tokens);
+    document.getElementById("injectable").innerHTML += content;
   } else {
-    document.getElementById("injectable").innerHTML =
-      document.getElementById("injectable").innerHTML + content;
+    document.getElementById("injectable").innerHTML += nocontent;
   }
 }
 
@@ -306,14 +303,17 @@ async function addMistake(mistake) {
   const snap = await getDoc(ref);
   const previous_mistakes = snap.data().previous_mistakes;
   previous_mistakes.push(mistake);
-  return await setDoc(ref, {
+  return await updateDoc(ref, {
     previous_mistakes: previous_mistakes,
   });
 }
 
-function fix(ids, auto) {
+async function fix(ids, auto) {
+  updateTokenCount();
   ids = ids.split("-")[0];
   if (auto) {
+    await useToken();
+    updateTokenCount();
     let clist = fixesglob[ids];
     console.log(clist);
     let inde = 0;
@@ -328,7 +328,7 @@ function fix(ids, auto) {
     while (getIndicesOf(clist[0], getText(), false).length < inde) {
       inde = inde - 1;
     }
-    let index = getIndicesOf(clist[0], getText(), false)[inde];
+    let index = getIndicesOf(clist[0], getText(), false)[0];
 
     // replace the word
     let newtext = getText().substring(0, index);
@@ -361,7 +361,7 @@ function fix(ids, auto) {
       while (getIndicesOf(clist[0], getText(), false).length < inde) {
         inde = inde - 1;
       }
-      let index = getIndicesOf(clist[0], getText(), false)[inde];
+      let index = getIndicesOf(clist[0], getText(), false)[0];
 
       // replace the word
       let newtext = getText().substring(0, index);
@@ -383,3 +383,41 @@ window.getText = getText;
 //   var text = e.clipboardData.getData('text/plain')
 //   document.execCommand('insertText', false, text)
 // })
+
+async function updateTokenCount() {
+  var ce = document.getElementById("tokencount");
+  ce.innerHTML = "Tokens: " + (await getTokens());
+}
+
+async function getTokens() {
+  const ref = doc(db, "users", currentUser.uid);
+  const snap = await getDoc(ref);
+  return snap.data()["tokens"];
+}
+
+async function useToken() {
+  let tokens = await getTokens();
+  const ref = doc(db, "users", currentUser.uid);
+  await updateDoc(ref, {
+    tokens: tokens - 1,
+  });
+}
+
+async function addToken() {
+  const tokens = await getTokens();
+  const ref = doc(db, "users", currentUser.uid);
+  await updateDoc(ref, {
+    tokens: tokens + 1,
+  });
+}
+
+window.getTokens = getTokens;
+window.useToken = useToken;
+window.addToken = addToken;
+
+while (true) {
+  await updateTokenCount();
+  setTimeout(() => {
+    // do something else
+  }, 50);
+}

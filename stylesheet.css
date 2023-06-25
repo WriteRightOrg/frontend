@@ -12,6 +12,16 @@ html {
     color: black;
     
 }
+.be2 {
+    text-align: left;
+    width: 50%;
+    min-height: 200px;
+    padding: 20px;
+    border-radius: 20px;
+    background-color: #D8F3DC;
+    color: black;
+}
+
 .ud{
     text-decoration-color: red;
     text-decoration-thickness: 2.5px;
@@ -55,4 +65,8 @@ html {
     align-items: center;
     flex-direction: column;
     margin: 50px;
+}
+
+#correct-button {
+    margin-top: 10px;
 }
